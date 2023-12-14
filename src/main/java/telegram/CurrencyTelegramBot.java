@@ -5,6 +5,7 @@ import currency.CurrencyRatePrettier;
 import currency.CurrencyService;
 import currency.impl.CurrencyRatePrettierImpl;
 import currency.impl.CurrencyServiceImpl;
+import currency.impl.CurrencyServiceImplMono;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -19,7 +20,8 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
     private CurrencyService currencyService;
     private CurrencyRatePrettier currencyRatePrettier;
     public CurrencyTelegramBot() {
-        currencyService = new CurrencyServiceImpl();
+        //currencyService = new CurrencyServiceImpl();
+        currencyService = new CurrencyServiceImplMono();
         currencyRatePrettier = new CurrencyRatePrettierImpl();
         register(new StartCommand());
     }
@@ -33,18 +35,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
     public String getBotToken(){
         return LoginConstants.TOKEN;
     }
-
-//    @Override
-//    public void onUpdatesReceived(List<Update> updates){
-//        updates.stream()
-//                .filter(u ->u.hasMessage())
-//                .map(u -> u.getMessage().getText() + "form" + u.getMessage().getChat().getUserName())
-//                .peek(System.out::println)
-//                .collect(Collectors.toList());
-//        System.out.println("Some updsa");
-//
-//    }
-
 
     @Override
     public void processNonCommandUpdate(Update update) {
@@ -80,6 +70,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
     private String getRate(String ccy) {
         Currency currency = Currency.valueOf(ccy);
-        return currencyRatePrettier.pretty(currencyService.getRate(currency), currency);
+        return currencyRatePrettier.pretty(currencyService.getRateBuy(currency), currencyService.getRateSale(currency), currency);
     }
 }

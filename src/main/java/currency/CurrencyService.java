@@ -2,5 +2,6 @@ package currency;
 
 public interface CurrencyService {
 
-    double getRate(Currency ccy);
+    double getRateBuy(Currency ccy);
+    double getRateSale(Currency ccy);
 }
