@@ -12,9 +12,10 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 public class CurrencyServiceImpl implements CurrencyService {
-    public double getRate(Currency ccy){
         String url = "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5";
-       String jsonString = "";
+        String jsonString;
+
+    {
 
         try {
             jsonString = Jsoup.connect(url)
@@ -25,17 +26,34 @@ public class CurrencyServiceImpl implements CurrencyService {
         } catch (IOException e) {
             System.out.println("error while currency request");
         }
-
+    }
         Type type = TypeToken.getParameterized(List.class, CurrencyItemDTO.class)
                 .getType();
         List<CurrencyItemDTO> list =  new Gson().fromJson(jsonString, type);
-       String s = list.stream()
+        String strBuy = "";
+        String strSale = "";
+
+        @Override
+        public double getRateBuy (Currency ccy) {
+
+       strBuy = list.stream()
                .filter(c -> c.getCcy() == ccy)
                .filter(c -> c.getBase_ccy() == Currency.UAH)
-               .map(c ->c.getBuy())
+               .map(CurrencyItemDTO::getBuy)
                .findFirst()
                .orElseThrow();
 
-        return Double.valueOf(s);
+        return Double.parseDouble(strBuy);
+    }
+
+    @Override
+    public double getRateSale(Currency ccy) {
+        strSale = list.stream()
+                .filter(c -> c.getCcy() == ccy)
+                .filter(c -> c.getBase_ccy() == Currency.UAH)
+                .map(CurrencyItemDTO::getSale)
+                .findFirst()
+                .orElseThrow();
+        return Double.parseDouble(strSale);
     }
 }

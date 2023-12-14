@@ -8,12 +8,12 @@ import java.text.DecimalFormat;
 
 public class CurrencyRatePrettierImpl implements CurrencyRatePrettier {
 
-    public static final String FORMAT = "Kurs %s => UAH = %s";
+    public static final String FORMAT = "Kurs buy %s => UAH = %s" + "\n" + "Kurs sale %s => UAH = %s";
 
     @Override
-    public String pretty(double rate, Currency ccy){
+    public String pretty(double rateBuy, double rateSale, Currency ccy){
         DecimalFormat df = new DecimalFormat("#.##");
         df.setRoundingMode(RoundingMode.CEILING);
-        return String.format(FORMAT, ccy, df.format(rate));
+        return String.format(FORMAT, ccy, df.format(rateBuy), ccy, df.format(rateSale));
     }
 }
