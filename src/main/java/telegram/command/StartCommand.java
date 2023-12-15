@@ -1,6 +1,7 @@
 package telegram.command;
 
 
+import currency.Button;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -23,20 +24,20 @@ public class StartCommand extends BotCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
-        String text = "select currency you want to check";
+        String text = "Ласкаво просимо. Цей бот допоможе відслідковувати актуальні курси валют";
 
         SendMessage sm = new SendMessage();
         sm.setText(text);
         sm.setChatId(chat.getId());
 
         InlineKeyboardButton usdButton = InlineKeyboardButton.builder()
-                .text("USD")
-                .callbackData("USD")
+                .text(Button.INFO.get())
+                .callbackData(Button.INFO.get())
                 .build();
 
         InlineKeyboardButton eurButton = InlineKeyboardButton.builder()
-                .text("EUR")
-                .callbackData("EUR")
+                .text(Button.SETTINGS.get())
+                .callbackData(Button.SETTINGS.get())
                 .build();
 
         InlineKeyboardMarkup inlineKeyboardMarkup =  InlineKeyboardMarkup.builder()
@@ -47,7 +48,7 @@ public class StartCommand extends BotCommand {
         try {
             absSender.execute(sm);
         } catch (TelegramApiException e) {
-            System.out.println("error");
+            System.out.println("Помилка!");
         }
     }
 }
