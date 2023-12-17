@@ -12,14 +12,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegram.command.StartCommand;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
@@ -134,7 +131,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
                 .keyboard(Collections.singletonList(Arrays.asList(numSingsButton, bankButton, currencyButton, timeButton)))
                 .build();
         sm.setReplyMarkup(inlineKeyboardMarkup);
-        KeyboardButton key = KeyboardButton.builder().build();
 
         try {
             execute(sm);
