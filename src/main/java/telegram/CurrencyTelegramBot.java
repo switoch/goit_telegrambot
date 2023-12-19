@@ -4,9 +4,7 @@ import currency.Button;
 import currency.Currency;
 import currency.CurrencyRatePrettier;
 import currency.CurrencyService;
-import currency.impl.CurrencyRatePrettierImpl;
-import currency.impl.CurrencyServiceImpl;
-import currency.impl.CurrencyServiceImplMono;
+import currency.impl.*;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -43,16 +41,11 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
-            String receivedText = update.getMessage().getText();
-
-            SendMessage sm = new SendMessage();
-            sm.setText("You just wrote " + receivedText);
-            sm.setChatId(update.getMessage().getChatId());
-
+            SendMessage message = new MessageHandler().sendMessage(update);
             try {
-                execute(sm);
+                execute(message);
             } catch (TelegramApiException e) {
-                System.out.println("something went wrong");
+                System.out.println("Щось пішло не так...");
             }
         }
 
@@ -65,6 +58,16 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
             }
             if (data.equals(Button.SETTINGS.get())) {
                 settingsButton(update);
+            }
+
+            if (data.equals(Button.TIME.get())) {
+                SendMessage message = new TimeButtonHandler().sendMessage(update);
+
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    System.out.println("Щось пішло не так...");
+                }
             }
         }
     }
