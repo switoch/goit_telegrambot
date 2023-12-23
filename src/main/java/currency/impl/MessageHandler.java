@@ -17,7 +17,8 @@ public class MessageHandler implements Handlers {
         List<String> buttonsNumSigns = Arrays.asList(Button.SIGNS1.get(),Button.SIGNS2.get(),Button.SIGNS3.get());
         List<String> banks = Arrays.asList(Button.BANK1.get(),Button.BANK2.get(),Button.BANK3.get());
         List<String> currencies = Arrays.asList(Button.CURRENCY1.get(),Button.CURRENCY2.get(),Button.CURRENCY3.get());
-        SendMessage message = new SendMessage();
+        
+      SendMessage message = new SendMessage();
         if (receivedText.equals(Button.NOTIME.get())) {
             text = "Ви вимкнули час сповіщеннь, тому інформацію можете отримувати натискаючи кнопку Отримати інфо";
         }
@@ -26,6 +27,7 @@ public class MessageHandler implements Handlers {
                 text = "Ви обрали час надсилання повідомлень о " + receivedText;
             }
         }
+
         for (String button: buttonsNumSigns){
             if (receivedText.equals(button)) {
                 text = "Ви обрали кількість знаків після коми " + receivedText;
@@ -41,6 +43,7 @@ public class MessageHandler implements Handlers {
                 text = "З валют Ви обрали: " + receivedText;
             }
         }
+      
         if (text.isEmpty()) {
             text = "Ви написали: " + receivedText + " Цей бот не має можливості опрацьовувати текст. Оберіть, будь ласка, кнопку";
         }

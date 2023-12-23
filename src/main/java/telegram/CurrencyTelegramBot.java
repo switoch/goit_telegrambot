@@ -98,6 +98,16 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
                     System.out.println("Щось пішло не так...");
                 }
             }
+
+            if (data.equals(Button.TIME.get())) {
+                SendMessage message = new TimeButtonHandler().sendMessage(update);
+
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    System.out.println("Щось пішло не так...");
+                }
+            }
         }
     }
 
