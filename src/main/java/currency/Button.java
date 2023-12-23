@@ -23,7 +23,10 @@ public enum Button {
     TIME8("16-00"),
     TIME9("17-00"),
     TIME10("18-00"),
-    NOTIME("Вимкнути повідомлення");
+    NOTIME("Вимкнути повідомлення"),
+    CURRENCY1("USD"),
+    CURRENCY2("EUR"),
+    CURRENCY3("USD & EUR");
 
 
     private String value;
