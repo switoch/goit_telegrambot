@@ -2,6 +2,6 @@ package telegram;
 
 public class LoginConstants {
 
-    public static final String NAME = "ProjTestVova";
-    public static final String TOKEN = "6745243021:AAF8QW4A352poVNUCAvWrcOkxJFqM52plb0";
+    public static final String NAME = "CurrencyServiceLinaBot";
+    public static final String TOKEN = "6819552117:AAH7wbgr05D5LXXeQP7c8xJjIC2-Mm9cf68";
 }
