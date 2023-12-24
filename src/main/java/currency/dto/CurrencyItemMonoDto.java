@@ -1,12 +1,12 @@
 package currency.dto;
 
-import currency.Currency;
+import currency.CurrencyItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CurrencyItemDTOMono {
+public class CurrencyItemMonoDto implements CurrencyItem {
     private int currencyCodeA;
     private int currencyCodeB;
     private double rateBuy;
@@ -14,4 +14,13 @@ public class CurrencyItemDTOMono {
     private double rateCross;
     private int date;
 
+    @Override
+    public Double getSellRate() {
+        return rateSell;
+    }
+
+    @Override
+    public Double getBuyRate() {
+        return rateBuy;
+    }
 }

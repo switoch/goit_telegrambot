@@ -1,9 +1,6 @@
 package telegram;
 
-import currency.Button;
-import currency.Currency;
-import currency.CurrencyRatePrettier;
-import currency.CurrencyService;
+import currency.*;
 import currency.impl.*;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -21,21 +18,23 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
     private CurrencyService currencyService;
     private CurrencyRatePrettier currencyRatePrettier;
 
+
     public CurrencyTelegramBot() {
         //currencyService = new CurrencyServiceImpl();
-        currencyService = new CurrencyServiceImplMono();
+        currencyService = new MonoCurrencyServiceImpl();
         currencyRatePrettier = new CurrencyRatePrettierImpl();
         register(new StartCommand());
     }
 
     @Override
     public String getBotUsername() {
-        return LoginConstants.NAME;
+
+        return Credentials.NAME;
     }
 
     @Override
     public String getBotToken() {
-        return LoginConstants.TOKEN;
+        return Credentials.TOKEN;
     }
 
     @Override
@@ -123,7 +122,8 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
     private String getRate(String ccy) {
         Currency currency = Currency.valueOf(ccy);
-        return currencyRatePrettier.pretty(currencyService.getRateBuy(currency), currencyService.getRateSale(currency), currency);
+        CurrencyItem currencyItem = currencyService.getCurrencyItem(currency);
+        return currencyRatePrettier.pretty(currencyItem.getBuyRate(), currencyItem.getSellRate(), currency);
     }
 
     private void getInfoButton(Update update, String currency) {
