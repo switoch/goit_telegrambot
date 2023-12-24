@@ -1,9 +1,6 @@
 package telegram;
 
-import currency.Button;
-import currency.Currency;
-import currency.CurrencyRatePrettier;
-import currency.CurrencyService;
+import currency.*;
 import currency.impl.*;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,28 +8,26 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegram.command.StartCommand;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
-    private CurrencyService currencyService;
-    private CurrencyRatePrettier currencyRatePrettier;
+    private final CurrencyService currencyService;
+    private final CurrencyRatePrettier currencyRatePrettier;
+
     public CurrencyTelegramBot() {
         //currencyService = new CurrencyServiceImpl();
-        currencyService = new CurrencyServiceImplMono();
+        currencyService = new MonoCurrencyServiceImpl();
         currencyRatePrettier = new CurrencyRatePrettierImpl();
         register(new StartCommand());
     }
 
     @Override
-    public String getBotUsername(){
-        return LoginConstants.NAME;
+    public String getBotUsername() {
+        return Credentials.NAME;
     }
 
     @Override
-    public String getBotToken(){
-        return LoginConstants.TOKEN;
+    public String getBotToken() {
+        return Credentials.TOKEN;
     }
 
     @Override
@@ -74,6 +69,7 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
     private String getRate(String ccy) {
         Currency currency = Currency.valueOf(ccy);
-        return currencyRatePrettier.pretty(currencyService.getRateBuy(currency), currencyService.getRateSale(currency), currency);
+        CurrencyItem currencyItem = currencyService.getCurrencyItem(currency);
+        return currencyRatePrettier.pretty(currencyItem.getBuyRate(), currencyItem.getSellRate(), currency);
     }
 }
