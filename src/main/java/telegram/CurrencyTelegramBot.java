@@ -52,6 +52,7 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
         if (update.hasCallbackQuery()) {
             String data = update.getCallbackQuery().getData();
 
+
             if (data.equals(Button.INFO.get())) {
                 String changeLater = Currency.USD.toString();
                 getInfoButton(update, changeLater);
@@ -97,6 +98,15 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
                 } catch (TelegramApiException e) {
                     System.out.println("Щось пішло не так...");
                 }
+
+
+            if (data.equals(Button.INFO.get())) {
+                String changeLater = Currency.USD.toString();
+                getInfoButton(update, changeLater);
+            }
+            if (data.equals(Button.SETTINGS.get())) {
+                settingsButton(update);
+
             }
 
             if (data.equals(Button.TIME.get())) {
