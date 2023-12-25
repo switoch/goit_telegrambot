@@ -7,6 +7,7 @@ public enum Button {
     BANK("Банк"),
     CURRENCY("Валюти"),
     TIME("Час оповіщення"),
+    SIGN_AFTER_COMMA("Кількість знаків пімля коми"),
     SIGNS1("2"),
     SIGNS2("3"),
     SIGNS3("4"),
