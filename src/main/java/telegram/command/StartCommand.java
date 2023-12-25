@@ -11,9 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
 public class StartCommand extends BotCommand {
@@ -40,7 +38,7 @@ public class StartCommand extends BotCommand {
                 .callbackData(Button.SETTINGS.get())
                 .build();
 
-        InlineKeyboardMarkup inlineKeyboardMarkup =  InlineKeyboardMarkup.builder()
+        InlineKeyboardMarkup inlineKeyboardMarkup = InlineKeyboardMarkup.builder()
                 .keyboard(Collections.singletonList(Arrays.asList(usdButton, eurButton)))
                 .build();
 

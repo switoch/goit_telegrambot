@@ -20,15 +20,14 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
 
     public CurrencyTelegramBot() {
-        //currencyService = new CurrencyServiceImpl();
-        currencyService = new MonoCurrencyServiceImpl();
+        currencyService = new PrivateBankCurrencyServiceImpl();
+        //currencyService = new MonoCurrencyServiceImpl();
         currencyRatePrettier = new CurrencyRatePrettierImpl();
         register(new StartCommand());
     }
 
     @Override
     public String getBotUsername() {
-
         return Credentials.NAME;
     }
 
@@ -51,7 +50,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
         if (update.hasCallbackQuery()) {
             String data = update.getCallbackQuery().getData();
 
-
             if (data.equals(Button.INFO.get())) {
                 String changeLater = Currency.USD.toString();
                 getInfoButton(update, changeLater);
@@ -68,7 +66,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
                     System.out.println("Щось пішло не так...");
                 }
             }
-
             if (data.equals(Button.TIME.get())) {
                 SendMessage message = new TimeButtonHandler().sendMessage(update);
 
@@ -78,7 +75,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
                     System.out.println("Щось пішло не так...");
                 }
             }
-
             if (data.equals(Button.BANK.get())) {
                 SendMessage message = new BankButtonHandler().sendMessage(update);
 
@@ -88,28 +84,8 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
                     System.out.println("Щось пішло не так...");
                 }
             }
-
             if (data.equals(Button.CURRENCY.get())) {
                 SendMessage message = new CurrenciesButtonHandler().sendMessage(update);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    System.out.println("Щось пішло не так...");
-                }
-
-
-            if (data.equals(Button.INFO.get())) {
-                String changeLater = Currency.USD.toString();
-                getInfoButton(update, changeLater);
-            }
-            if (data.equals(Button.SETTINGS.get())) {
-                settingsButton(update);
-
-            }
-
-            if (data.equals(Button.TIME.get())) {
-                SendMessage message = new TimeButtonHandler().sendMessage(update);
 
                 try {
                     execute(message);
@@ -128,7 +104,6 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
     private void getInfoButton(Update update, String currency) {
         String prettyRate = getRate(currency);
-
         SendMessage sm = new SendMessage();
         sm.setText(prettyRate);
         sm.setChatId(update.getCallbackQuery().getMessage().getChatId());
