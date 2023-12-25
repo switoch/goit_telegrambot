@@ -18,6 +18,15 @@ public enum NotificationTime {
         return value;
     }
 
+    public static NotificationTime getEnum(String value) {
+        for (NotificationTime nt: NotificationTime.values()) {
+            if (nt.value.equals(value)) {
+                return nt;
+            }
+        }
+        return null;
+    }
+
     NotificationTime(String value) {
         this.value = value;
     }

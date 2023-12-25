@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserSettingsServiceImpl {
@@ -16,14 +17,12 @@ public class UserSettingsServiceImpl {
 
     private static UserSettingsServiceImpl instance;
 
-    private final HashMap<Long, UserSettingsDTO> store;
-    Type type = TypeToken.getParameterized(HashMap.class, UserSettingsDTO.class).getType();
-
+    private final Map<Long, UserSettingsDTO> store;
+    private final Type type = new TypeToken<Map<Long, UserSettingsDTO>>(){}.getType();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private UserSettingsServiceImpl() {
         String json = "{}";
-
 
         store = gson.fromJson(json, type);
 
