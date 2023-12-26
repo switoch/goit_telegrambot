@@ -1,9 +1,11 @@
 package telegram;
 
 import currency.*;
+import currency.dto.UserSettingsDTO;
 import currency.impl.*;
 import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -12,16 +14,14 @@ import telegram.command.StartCommand;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
 
-    private CurrencyService currencyService;
     private CurrencyRatePrettier currencyRatePrettier;
 
 
     public CurrencyTelegramBot() {
-        currencyService = new PrivateBankCurrencyServiceImpl();
-        //currencyService = new MonoCurrencyServiceImpl();
         currencyRatePrettier = new CurrencyRatePrettierImpl();
         register(new StartCommand());
     }
@@ -39,74 +39,116 @@ public class CurrencyTelegramBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
-            SendMessage message = new MessageHandler().sendMessage(update);
+            handleMessage(update);
+        }
+
+        if (update.hasCallbackQuery()) {
+            handleCallback(update);
+        }
+
+    }
+
+    private void handleMessage(Update update) {
+        SendMessage message = new MessageHandler().sendMessage(update);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            System.out.println("Щось пішло не так...");
+        }
+    }
+
+    private void handleCallback(Update update) {
+        String data = update.getCallbackQuery().getData();
+        if (data.equals(Button.INFO.get())) {
+            getInfoButton(update);
+        }
+        if (data.equals(Button.SETTINGS.get())) {
+            settingsButton(update);
+        }
+        if (data.equals(Button.NUMSIGNS.get())) {
+            SendMessage message = PrecisionButtonHandler.getInstance().createMessage(update);
+
             try {
                 execute(message);
             } catch (TelegramApiException e) {
                 System.out.println("Щось пішло не так...");
             }
         }
+        if (data.equals(Button.TIME.get())) {
+            SendMessage message = new TimeButtonHandler().sendMessage(update);
 
-        if (update.hasCallbackQuery()) {
-            String data = update.getCallbackQuery().getData();
-
-            if (data.equals(Button.INFO.get())) {
-                String changeLater = Currency.USD.toString();
-                getInfoButton(update, changeLater);
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                System.out.println("Щось пішло не так...");
             }
-            if (data.equals(Button.SETTINGS.get())) {
-                settingsButton(update);
+        }
+        if (data.equals(Button.BANK.get())) {
+            SendMessage message = BankButtonHandler.getInstance().createMessage(update);
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                System.out.println("Щось пішло не так...");
             }
-            if (data.equals(Button.NUMSIGNS.get())) {
-                SendMessage message = new NumSignsButtonHandler().sendMessage(update);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    System.out.println("Щось пішло не так...");
-                }
+        }
+        if (data.equals(Button.CURRENCY.get())) {
+            SendMessage message = CurrenciesButtonHandler.getInstance().createMessage(update);
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                System.out.println("Щось пішло не так...");
             }
-            if (data.equals(Button.TIME.get())) {
-                SendMessage message = new TimeButtonHandler().sendMessage(update);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    System.out.println("Щось пішло не так...");
-                }
+        }
+        if (data.equals(String.valueOf(Currency.USD)) || data.equals(String.valueOf(Currency.EUR))) {
+            try {
+                execute(CurrenciesButtonHandler.getInstance().editMessage(update));
+            } catch (TelegramApiException e) {
+                System.out.println("Щось пішло не так...");
             }
-            if (data.equals(Button.BANK.get())) {
-                SendMessage message = new BankButtonHandler().sendMessage(update);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    System.out.println("Щось пішло не так...");
-                }
+        }
+        if (Arrays.stream(Bank.values()).map(String::valueOf).toList().contains(data)) {
+            try {
+                execute(BankButtonHandler.getInstance().editMessage(update));
+            } catch (TelegramApiException e) {
+                System.out.println("Щось пішло не так...");
             }
-            if (data.equals(Button.CURRENCY.get())) {
-                SendMessage message = new CurrenciesButtonHandler().sendMessage(update);
-
-                try {
-                    execute(message);
-                } catch (TelegramApiException e) {
-                    System.out.println("Щось пішло не так...");
-                }
+        }
+        if (Arrays.stream(Precision.values()).map(String::valueOf).toList().contains(data)) {
+            try {
+                execute(PrecisionButtonHandler.getInstance().editMessage(update));
+            } catch (TelegramApiException e) {
+                System.out.println("Щось пішло не так...");
             }
         }
     }
 
-    private String getRate(String ccy) {
-        Currency currency = Currency.valueOf(ccy);
-        CurrencyItem currencyItem = currencyService.getCurrencyItem(currency);
-        return currencyRatePrettier.pretty(currencyItem.getBuyRate(), currencyItem.getSellRate(), currency);
+
+    private String getRate(UserSettingsDTO userSettings) {
+        CurrencyService cs = null;
+        switch (userSettings.getBank()) {
+            case PRIVATBANK -> cs = new PrivateBankCurrencyServiceImpl();
+            case MONO -> cs = new MonoCurrencyServiceImpl();
+            case NBU -> cs = new NBUCurrencyServiceImpl();
+        }
+
+        CurrencyService finalCs = cs;
+        return String.format(
+                "%s:\n%s",
+                userSettings.getBank().getBankName(),
+                !userSettings.getCurrency().isEmpty() ? userSettings.getCurrency().stream().map(currency -> {
+            CurrencyItem ci = finalCs.getCurrencyItem(currency);
+            return currencyRatePrettier.pretty(ci.getBuyRate(), ci.getSellRate(), currency, userSettings.getPrecision().getValue());
+        }).collect(Collectors.joining("\n\n")) : "Не обрано валу для відображення");
     }
 
-    private void getInfoButton(Update update, String currency) {
-        String prettyRate = getRate(currency);
+    private void getInfoButton(Update update) {
+        Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        UserSettingsDTO userSettings = UserSettingsServiceImpl.getInstance().getSettings(chatId);
+        String prettyRate = getRate(userSettings);
         SendMessage sm = new SendMessage();
         sm.setText(prettyRate);
-        sm.setChatId(update.getCallbackQuery().getMessage().getChatId());
+
+        sm.setChatId(chatId);
 
         InlineKeyboardButton usdButton = InlineKeyboardButton.builder()
                 .text(Button.INFO.get())

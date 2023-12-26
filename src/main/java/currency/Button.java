@@ -7,12 +7,7 @@ public enum Button {
     BANK("Банк"),
     CURRENCY("Валюти"),
     TIME("Час оповіщення"),
-    SIGNS1("2"),
-    SIGNS2("3"),
-    SIGNS3("4"),
-    BANK1("Приватбанк"),
-    BANK2("Монобанк"),
-    BANK3("НБУ"),
+    SIGN_AFTER_COMMA("Кількість знаків пімля коми"),
     TIME1("09-00"),
     TIME2("10-00"),
     TIME3("11-00"),
@@ -23,11 +18,7 @@ public enum Button {
     TIME8("16-00"),
     TIME9("17-00"),
     TIME10("18-00"),
-    NOTIME("Вимкнути повідомлення"),
-    CURRENCY1("USD"),
-    CURRENCY2("EUR"),
-    CURRENCY3("USD & EUR");
-
+    NOTIME("Вимкнути повідомлення");
 
     private String value;
     public String get() {
