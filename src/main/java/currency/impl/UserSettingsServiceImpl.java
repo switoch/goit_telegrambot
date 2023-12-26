@@ -5,11 +5,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import currency.dto.UserSettingsDTO;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class UserSettingsServiceImpl {
@@ -23,7 +25,16 @@ public class UserSettingsServiceImpl {
 
     private UserSettingsServiceImpl() {
         String json = "{}";
-
+        File file = new File("settings.json");
+        List<String> rows = new ArrayList<>();
+        if (file.exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                json = br.lines().collect(Collectors.joining("\n"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         store = gson.fromJson(json, type);
 
     }
@@ -41,11 +52,9 @@ public class UserSettingsServiceImpl {
         try (FileWriter writer = new FileWriter("settings.json")) {
             writer.write(fileContent);
             writer.flush();
-            writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public UserSettingsDTO getSettings(Long chatId) {

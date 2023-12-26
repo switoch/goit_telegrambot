@@ -10,4 +10,17 @@ public enum Bank {
     Bank(String bankName) {
         this.bankName = bankName;
     }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public static Bank resolveEnumByStr(String bankName) {
+        for (Bank bank: Bank.values()) {
+            if (bank.getBankName().equals(bankName)) {
+                return bank;
+            }
+        }
+        return null;
+    }
 }

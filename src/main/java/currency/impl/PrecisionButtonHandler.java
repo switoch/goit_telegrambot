@@ -1,7 +1,9 @@
 package currency.impl;
 
+import currency.Bank;
 import currency.Button;
-import currency.Currency;
+import currency.Precision;
+import currency.dto.UserSettingsDTO;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,43 +15,39 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CurrenciesButtonHandler {
-    private static CurrenciesButtonHandler instance;
-    public static CurrenciesButtonHandler getInstance() {
+public class PrecisionButtonHandler {
+    private static PrecisionButtonHandler instance;
+    public static PrecisionButtonHandler getInstance() {
         if (instance == null) {
-            instance = new CurrenciesButtonHandler();
+            instance = new PrecisionButtonHandler();
         }
         return instance;
 
     }
-    private CurrenciesButtonHandler() {
+    private PrecisionButtonHandler() {
     }
 
     private final UserSettingsServiceImpl settingsService = UserSettingsServiceImpl.getInstance();
 
-    private String getButtonCaption(Currency ccy, List<Currency> userSettingsCurrencies) {
+    private String getButtonCaption(Precision precision, Precision selectedPrecision) {
         String active = "✅";
-        if (userSettingsCurrencies.contains(ccy)) {
-            return active + String.valueOf(ccy);
+        if (precision == selectedPrecision) {
+            return active + precision.getValue();
         }
-        return String.valueOf(ccy);
+        return String.valueOf(precision.getValue());
     }
 
-    private InlineKeyboardMarkup getCurrencyKeyboard(Long chatId) {
-        List<Currency> currencies = settingsService.getSettings(chatId).getCurrency();
+    private InlineKeyboardMarkup getKeyboard(Long chatId) {
+        Precision selectedPrecision = settingsService.getSettings(chatId).getPrecision();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
         keyboard.add(
-                Arrays.asList(
-                        InlineKeyboardButton.builder()
-                                .text(getButtonCaption(Currency.USD, currencies))
-                                .callbackData(String.valueOf(Currency.USD))
-                                .build(),
-                        InlineKeyboardButton.builder()
-                                .text(getButtonCaption(Currency.EUR, currencies))
-                                .callbackData(String.valueOf(Currency.EUR))
-                                .build()
-                )
+                Arrays.stream(Precision.values()).map(precision -> {
+                    return InlineKeyboardButton.builder()
+                            .text(getButtonCaption(precision, selectedPrecision))
+                            .callbackData(String.valueOf(precision))
+                            .build();
+                }).toList()
         );
         keyboard.add(
                 Collections.singletonList(
@@ -65,24 +63,24 @@ public class CurrenciesButtonHandler {
 
     public SendMessage createMessage(Update update) {
         SendMessage message = new SendMessage();
-        message.setText("Оберіть потрібні валюти:");
+        message.setText("Оберіть кількість знаків після коми");
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         message.setChatId(chatId);
-        message.setReplyMarkup(getCurrencyKeyboard(chatId));
+        message.setReplyMarkup(getKeyboard(chatId));
         return message;
     }
 
     public EditMessageReplyMarkup editMessage(Update update) {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
-
+        UserSettingsDTO userSettings = settingsService.getSettings(chatId);
         String data = update.getCallbackQuery().getData();
-        settingsService.getSettings(chatId).toggleCurrency(Currency.valueOf(data));
-        settingsService.saveSettings(chatId, settingsService.getSettings(chatId));
+        userSettings.setPrecision(Precision.valueOf(data));
+        settingsService.saveSettings(chatId, userSettings);
         return EditMessageReplyMarkup.builder()
                 .chatId(chatId)
                 .messageId(messageId)
-                .replyMarkup(getCurrencyKeyboard(chatId))
+                .replyMarkup(getKeyboard(chatId))
                 .build();
     }
 }
